@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Big</title>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' />
+  <link href='big.css' rel='stylesheet' type='text/css' />
+  <style>
+    .new-shiny { background: #aaaaaa; }
+    .light-text { color: #fff; }
+  </style>
+  <link href='highlight.css' rel='stylesheet' type='text/css' />
+  <script src='highlight.js'></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src='big.js'></script>
+</head>
+<body class='light'>
+
+  <div>Event Loop</div>
+
+  <div class='center'>
+    Definition
+  </div>
+
+  <div class='center'>
+    Stay with me
+  </div>
+
+  <div>
+    To coordinate events, user interaction, scripts, rendering, networking, and so forth, user agents must use event loops 
+  </div>
+
+  <div>
+    There must be at least one browsing context event loop per user agent, and at most one per unit of related similar-origin browsing contexts.
+  </div>
+
+  <div data-bodyclass='light-text' data-background-image='wenhao.jpeg'>
+  </div>
+
+  <div>
+    Stack
+  </div>
+
+  <div>
+    Show me the Code
+  </div>
+
+  <div>
+    <pre>
+<code>
+  function foo() {
+      console.log("foo");
+  }
+  
+  function bar() {
+      foo();
+  }
+  
+  bar()
+</code>
+    </pre>
+
+    <notes>    
+      Read <br>
+      Push to stack <br>
+      Run and pop from stack <br>
+      Util Stack empty <br>
+    </notes>
+  </div>
+
+  <div>
+    <a href="http://latentflip.com/loupe/?code=ZnVuY3Rpb24gZm9vKCkgewogICAgY29uc29sZS5sb2coImZvbyIpOwp9CgpmdW5jdGlvbiBiYXIoKSB7CiAgICBmb28oKTsKfQoKYmFyKCk%3D!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D" target="_blank">Visualize</a>
+  </div>
+
+  <div>
+    Task Queue
+  </div>
+
+  <div>
+    <pre>
+<code>
+  function foo() {
+      console.log("foo");
+  }
+  
+  function bar() {
+      setTimeout(foo(), 1000);
+  }
+  
+  bar()
+</code>      
+    </pre>
+  </div>
+
+  <div>
+    <em>setTimeout</em> is browser web api, <br>
+    it waits 1000ms then push to task queue, <br>
+    <em>when stack is empty</em>, <br>
+    browser pick first task to stack to run <br>
+  </div>
+
+  <div>
+    <a href="http://latentflip.com/loupe/?code=ZnVuY3Rpb24gZm9vKCkgewogICAgY29uc29sZS5sb2coImZvbyIpOwp9CgpmdW5jdGlvbiBiYXIoKSB7CiAgICBzZXRUaW1lb3V0KGZvbygpLCAxMDAwKTsKfQoKYmFyKCk%3D!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D">Visualize</a>
+  </div>
+
+  <div>
+    Next Example
+  </div>
+
+  <div>
+    <pre>
+<code>
+  for (var i = 0; i < 10; i++) {
+      console.log("Hello ", i);
+  }
+  
+  for (var i = 0; i < 10; i++) {
+      setTimeout(() => {
+          console.log("Hello ", i);
+      }, 0);
+  }
+</code>
+    </pre>
+  </div>
+
+  <div>
+    Any difference?
+  </div>
+
+  <div class='center'>
+    Let read the definition again
+  </div>
+
+  <div>
+    To coordinate events, user interaction, scripts, rendering, networking, and so forth, user agents must use event loops 
+  </div>
+
+  <div data-bodyclass='light-text' data-background-image='harden-eye.jpeg'>
+    <notes>Now I get it</notes>
+  </div>
+
+  <div>
+    Things are not that <em>easy</em>
+  </div>
+
+  <div>
+    <pre>
+<code>
+  console.log('script start');
+
+  setTimeout(function() {
+    console.log('setTimeout');
+  }, 0);
+  
+  Promise.resolve().then(function() {
+    console.log('promise1');
+  }).then(function() {
+    console.log('promise2');
+  });
+  
+  console.log('script end');
+</code>
+    </pre>
+  </div>
+
+  <div>
+    Here comes <em>Microtask</em>
+  </div>
+
+  <div>
+    Microtask is a task which runs immediately when stack empty
+  </div>
+
+  <div data-bodyclass='light-text' data-background-image='mieba.jpg'>
+    Boss
+  </div>
+
+  <div>
+    <pre>
+<code>
+  &lt;div class=&quot;outer&quot;&gt;
+    &lt;div class=&quot;inner&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+</code>
+    </pre>
+  </div>
+
+  <div>
+    <pre>
+<code>
+  var outer = document.querySelector('.outer');
+  var inner = document.querySelector('.inner');
+
+  new MutationObserver(function() {
+    console.log('mutate');
+  }).observe(outer, {
+    attributes: true
+  });
+
+  function onClick() {
+    console.log('click');
+
+    setTimeout(function() {
+      console.log('timeout');
+    }, 0);
+
+    Promise.resolve().then(function() {
+      console.log('promise');
+    });
+
+    outer.setAttribute('data-random', Math.random());
+  }
+
+  inner.addEventListener('click', onClick);
+  outer.addEventListener('click', onClick);
+</code>
+    </pre>
+  </div>
+
+  <div>
+    <ul>
+      <li>click</li>
+      <li>mutate</li>
+      <li>promise</li>
+      <li>click</li>
+      <li>mutate</li>
+      <li>promise</li>
+      <li>timeout</li>
+      <li>timeout</li>
+    </ul>
+  </div>
+
+  <div>Thank you</div>
+
+</body>
+</html>
